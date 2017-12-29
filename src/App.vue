@@ -2,12 +2,9 @@
   <div id="app">
     <img src="./assets/logo.png">
     <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
+    <h2>Essential Articles</h2>
     <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
+      <li v-for="article in articles" :key="article.id"><a href="#">{{article.title}} by {{article.author_name}}</a></li>
     </ul>
     <h2>Ecosystem</h2>
     <ul>
@@ -20,12 +17,30 @@
 </template>
 
 <script>
+import { firestore } from './firebase';
+
 export default {
   name: 'app',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      msg: 'Welcome to Your Vue.js App',
+      articles: []
     }
+  },
+  created() {
+    firestore
+      .collection('articles')
+      .limit(5)
+      .onSnapshot((articlesRef) => {
+        console.log(`Retrieved ${articlesRef.size} articles from articles collection`);
+        const articles = [];
+        articlesRef.forEach((doc) => {
+          const game = doc.data();
+          game.id = doc.id;
+          articles.push(game);
+        });
+        this.articles = articles;
+      });
   }
 }
 </script>
