@@ -11,4 +11,22 @@ var config = {
 };
 firebase.initializeApp(config);
 
-export const firestore = firebase.firestore();
+const store = {
+  articles: null
+};
+
+firebase.firestore()
+  .collection('articles')
+  .limit(5)
+  .onSnapshot((articlesRef) => {
+    console.log(`Received ${articlesRef.size} articles`);
+    const articles = [];
+    articlesRef.forEach((doc) => {
+      const article = doc.data();
+      article.id = doc.id;
+      articles.push(article);
+    });
+    store.articles = articles;
+  });
+
+export default store;
